@@ -46,10 +46,9 @@ stages:
               cliProjectName: 'My Android Project'
               cliSources: 'app/src/main/java'
               extraProperties: |
-                sonar.host.url=https://my-sonarqube-instance.com
+                sonar.host.url=https:http://localhost:9000
                 sonar.java.source=8
                 sonar.android.lint.reportPaths=app/build/outputs/lint-results.xml
-                sonar.coverage.jacoco.xmlReportPaths=app/build/reports/jacoco/jacoco.xml
                 sonar.junit.reportPaths=app/build/test-results/**/*.xml
                 sonar.android.lint.reportPath=app/build/reports/lint-results.xml
                 sonar.java.binaries=app/build/intermediates/javac/debug/classes
