@@ -9,7 +9,8 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-- task: Gradle@3
+steps:
+  - task: Gradle@3
     inputs:
       gradleWrapperFile: 'gradlew'
       tasks: 'build'
