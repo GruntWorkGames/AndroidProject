@@ -1,0 +1,20 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: Gradle@2
+  inputs:
+    gradleWrapperFile: 'gradlew'
+    tasks: 'clean build sonarqube'
+    sonarQubeRunAnalysis: true
+    sonarQubeScannerVersionChoice: 'specify'
+    sonarQubeGradlePluginVersionChoice: 'specify'
+    sonarQubeGradlePluginVersion: '3.3'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/app/build/outputs/apk'
+    ArtifactName: 'apk'
