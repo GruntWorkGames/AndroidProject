@@ -4,6 +4,9 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  SONARQUBE_TOKEN: $(SONARQUBE_TOKEN)
+
 steps:
 - task: Gradle@2
   inputs:
