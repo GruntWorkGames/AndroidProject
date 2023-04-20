@@ -1,23 +1,62 @@
+# Azure Pipelines YAML file for Android project with Gradle and SonarQube
+
 trigger:
-- main
+  - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'macOS-11'
 
 variables:
-  SONARQUBE_TOKEN: $(SONARQUBE_TOKEN)
+  # SonarQube authentication token
+  SONAR_TOKEN: $(SONAR_TOKEN)
 
-steps:
-- task: Gradle@2
-  inputs:
-    gradleWrapperFile: 'gradlew'
-    tasks: 'clean build sonarqube'
-    sonarQubeRunAnalysis: true
-    sonarQubeScannerVersionChoice: 'specify'
-    sonarQubeGradlePluginVersionChoice: 'specify'
-    sonarQubeGradlePluginVersion: '3.3'
+  # Gradle properties
+  GRADLE_OPTS: '-Dorg.gradle.daemon=false'
+  JAVA_HOME: '/usr/lib/jvm/java-8-openjdk-amd64'
+  GRADLE_USER_HOME: '$(Pipeline.Workspace)/.gradle'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/app/build/outputs/apk'
-    ArtifactName: 'apk'
+stages:
+  - stage: Build
+    displayName: 'Build APK'
+    jobs:
+      - job: Build
+        displayName: 'Build and test'
+        steps:
+          - task: Gradle@2
+            inputs:
+              workingDirectory: ''
+              gradleWrapperFile: 'gradlew'
+              gradleOptions: '-Xmx3072m'
+              publishJUnitResults: true
+              testResultsFiles: '**/TEST-*.xml'
+              tasks: 'clean build'
+
+  - stage: SonarQube
+    displayName: 'Run SonarQube analysis'
+    jobs:
+      - job: Analyze
+        displayName: 'Run SonarQube analysis'
+        steps:
+          - task: SonarQubePrepare@4
+            inputs:
+              SonarQube: 'SonarQubeConnection'
+              scannerMode: 'CLI'
+              configMode: 'file'
+              cliProjectKey: 'my-android-project'
+              cliProjectName: 'My Android Project'
+              cliSources: 'app/src/main/java'
+              extraProperties: |
+                sonar.host.url=https://my-sonarqube-instance.com
+                sonar.java.source=8
+                sonar.android.lint.reportPaths=app/build/outputs/lint-results.xml
+                sonar.coverage.jacoco.xmlReportPaths=app/build/reports/jacoco/jacoco.xml
+                sonar.junit.reportPaths=app/build/test-results/**/*.xml
+                sonar.android.lint.reportPath=app/build/reports/lint-results.xml
+                sonar.java.binaries=app/build/intermediates/javac/debug/classes
+
+          - task: Gradle@2
+            inputs:
+              workingDirectory: ''
+              gradleWrapperFile: 'gradlew'
+              gradleOptions: '-Xmx3072m'
+              tasks: 'sonarqube'
