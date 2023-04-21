@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'macos-latest'
 
 variables:
   SONARQUBE_TOKEN: $(SONARQUBE_TOKEN)
@@ -17,7 +17,13 @@ steps:
     sonarQubeGradlePluginVersionChoice: 'specify'
     sonarQubeGradlePluginVersion: '3.3'
 
+- task: Xcode@5
+  inputs:
+    actions: 'build'
+    packageApp: false
+    
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.SourcesDirectory)/app/build/outputs/apk'
-    ArtifactName: 'apk'
+    ArtifactName: 'app.apk'
+    publishLocation: 'Container'
